@@ -541,9 +541,8 @@
             }).toString();
 
             try {
-                // *** THIS IS THE CRUCIAL CHANGE ***
-                // Call your deployed Netlify Function
-                const response = await fetch(`/.netlify/functions/searchRestaurants?${queryParams}`);
+                // *** FIX: Using window.location.origin to create an absolute URL ***
+                const response = await fetch(`${window.location.origin}/.netlify/functions/searchRestaurants?${queryParams}`);
 
                 if (!response.ok) {
                     // Handle HTTP errors from the Netlify Function itself
@@ -583,6 +582,8 @@
 
         // Initial render of all dummy restaurants when the page loads
         document.addEventListener('DOMContentLoaded', () => {
+            // For initial load, we can still show dummy data or leave it empty
+            // For now, let's keep showing dummy data.
             renderRestaurantCards(dummyRestaurants);
         });
     </script>
