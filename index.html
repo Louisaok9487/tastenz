@@ -49,8 +49,9 @@
             justify-content: center;
             align-items: center;
         }
-        .search-area.minimized .search-input-group input {
-            width: 80%; /* Make input wider */
+        .search-area.minimized .search-input-group input,
+        .search-area.minimized .search-input-group select {
+            width: 80%; /* Make input/select wider */
             margin-bottom: 0;
         }
         .search-area.minimized .search-input-group label {
@@ -137,9 +138,47 @@
             background-color: #E5E7EB; /* gray-200 */
         }
 
+        /* Image Carousel Styling */
+        .image-carousel {
+            position: relative;
+            width: 100%;
+            height: 200px; /* Same as img height */
+            overflow: hidden;
+        }
+        .carousel-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .carousel-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1.2rem;
+            z-index: 10;
+        }
+        .carousel-button.prev {
+            left: 0.5rem;
+        }
+        .carousel-button.next {
+            right: 0.5rem;
+        }
+        .carousel-button:hover {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
         /* Responsive adjustments */
         @media (min-width: 768px) { /* md breakpoint */
-            .search-area.minimized .search-input-group input {
+            .search-area.minimized .search-input-group input,
+            .search-area.minimized .search-input-group select {
                 width: auto; /* Reset width on larger screens */
             }
             .search-area.minimized .search-input-group label {
@@ -206,31 +245,44 @@
                            class="w-full p-3 border border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200">
                 </div>
                 <div class="flex-1 search-input-group">
-                    <label for="location-search" class="block text-orange-700 text-lg font-medium mb-2">Location</label>
-                    <input type="text" id="location-search" placeholder="e.g. Auckland CBD, Wellington" value="New Zealand"
-                           class="w-full p-3 border border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200">
+                    <label for="location-select" class="block text-orange-700 text-lg font-medium mb-2">Location</label>
+                    <div class="flex space-x-2">
+                        <select id="location-select" class="flex-grow p-3 border border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200">
+                            <option value="New Zealand">New Zealand (All)</option>
+                            <option value="Auckland">Auckland</option>
+                            <option value="Christchurch">Christchurch</option>
+                            <option value="Wellington">Wellington</option>
+                            <option value="Other">Other City (Type below)</option>
+                        </select>
+                        <button id="use-gps-button" class="bg-orange-500 text-white p-3 rounded-lg hover:bg-orange-600 transition-colors" title="Use Current Location">
+                            📍
+                        </button>
+                    </div>
+                    <input type="text" id="location-text-input" placeholder="Type city name if 'Other'"
+                           class="w-full p-3 border border-orange-300 rounded-lg mt-2 hidden focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200">
+                    <p id="gps-status" class="text-sm text-gray-600 mt-1 hidden"></p>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6 search-filters">
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6 search-filters">
                 <div class="flex flex-col">
                     <label for="distance-filter" class="block text-orange-700 text-md font-medium mb-1">Distance</label>
                     <select id="distance-filter" class="p-3 border border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200">
                         <option value="">Any</option>
-                        <option value="1">Within 1 km</option>
-                        <option value="5">Within 5 km</option>
-                        <option value="10">Within 10 km</option>
-                        <option value="20">Within 20 km</option>
+                        <option value="1000">Within 1 km</option>
+                        <option value="5000">Within 5 km</option>
+                        <option value="10000">Within 10 km</option>
+                        <option value="20000">Within 20 km</option>
                     </select>
                 </div>
                 <div class="flex flex-col">
                     <label for="price-range-filter" class="block text-orange-700 text-md font-medium mb-1">Price Range</label>
                     <select id="price-range-filter" class="p-3 border border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200">
                         <option value="">Any</option>
-                        <option value="1">$</option>
-                        <option value="2">$$</option>
-                        <option value="3">$$$</option>
-                        <option value="4">$$$$</option>
+                        <option value="1">$ (Cheap)</option>
+                        <option value="2">$$ (Moderate)</option>
+                        <option value="3">$$$ (Expensive)</option>
+                        <option value="4">$$$$ (Very Expensive)</option>
                     </select>
                 </div>
                 <div class="flex flex-col">
@@ -252,11 +304,7 @@
                         <option value="1000">1000+ people</option>
                     </select>
                 </div>
-                <div class="flex flex-col">
-                    <label for="price-filter" class="block text-orange-700 text-md font-medium mb-1">Avg. Price</label>
-                    <input type="number" id="price-filter" placeholder="e.g. 25"
-                           class="w-full p-3 border border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors duration-200">
-                </div>
+                <!-- Removed Avg. Price Filter as requested -->
             </div>
 
             <div class="text-center search-button-container">
@@ -291,6 +339,7 @@
 
     <script>
         // Dummy restaurant data for New Zealand - This will be replaced by API data in a real app
+        // Updated to include multiple photos, address, and summarised pros/cons
         const dummyRestaurants = [
             {
                 id: 'r1',
@@ -300,10 +349,15 @@
                 price: '$$$',
                 rating: 4.7,
                 ratedBy: 1250,
-                photo: 'https://placehold.co/600x400/F97316/FFFFFF?text=Signature+Dish:+Duck+Confit',
+                photos: [
+                    'https://placehold.co/600x400/F97316/FFFFFF?text=Duck+Confit',
+                    'https://placehold.co/600x400/F97316/FFFFFF?text=Fine+Dining+Interior',
+                    'https://placehold.co/600x400/F97316/FFFFFF?text=Decadent+Dessert'
+                ],
+                address: '123 High Street, Auckland CBD',
                 prosCons: {
-                    pros: ['Exceptional service', 'Elegant ambiance', 'Decadent desserts'],
-                    cons: ['Premium pricing', 'Requires booking ahead']
+                    pros: ['Exceptional service', 'Elegant ambiance', 'Delicious desserts'],
+                    cons: ['Quite expensive', 'Reservations essential']
                 },
                 googleMapLink: 'https://maps.app.goo.gl/dummy1',
                 phone: '+64 9 123 4567'
@@ -316,10 +370,15 @@
                 price: '$$',
                 rating: 4.5,
                 ratedBy: 890,
-                photo: 'https://placehold.co/600x400/EA580C/FFFFFF?text=Signature+Dish:+Hāngi+Plate',
+                photos: [
+                    'https://placehold.co/600x400/EA580C/FFFFFF?text=Hāngi+Plate',
+                    'https://placehold.co/600x400/EA580C/FFFFFF?text=Pāua+Fritters',
+                    'https://placehold.co/600x400/EA580C/FFFFFF?text=Cosy+Interior'
+                ],
+                address: '456 Beach Road, Wellington',
                 prosCons: {
-                    pros: ['Authentic local flavours', 'Warm, welcoming staff', 'Cosy and inviting'],
-                    cons: ['Limited vegetarian choices']
+                    pros: ['Authentic local dishes', 'Friendly staff', 'Cosy atmosphere'],
+                    cons: ['Limited vegetarian options', 'Can get busy']
                 },
                 googleMapLink: 'https://maps.app.goo.gl/dummy2',
                 phone: '+64 4 987 6543'
@@ -332,10 +391,15 @@
                 price: '$$',
                 rating: 4.6,
                 ratedBy: 2100,
-                photo: 'https://placehold.co/600x400/F97316/FFFFFF?text=Signature+Dish:+Dragon+Roll',
+                photos: [
+                    'https://placehold.co/600x400/F97316/FFFFFF?text=Dragon+Roll',
+                    'https://placehold.co/600x400/F97316/FFFFFF?text=Sashimi+Platter',
+                    'https://placehold.co/600x400/F97316/FFFFFF?text=Japanese+Interior'
+                ],
+                address: '789 Main Street, Christchurch',
                 prosCons: {
-                    pros: ['Incredibly fresh sushi', 'Generous bento boxes', 'Efficient service'],
-                    cons: ['Can be very busy at peak times']
+                    pros: ['Fresh sushi', 'Great bento boxes', 'Quick service'],
+                    cons: ['Can get crowded', 'Parking can be tricky']
                 },
                 googleMapLink: 'https://maps.app.goo.gl/dummy3',
                 phone: '+64 3 234 5678'
@@ -348,10 +412,15 @@
                 price: '$',
                 rating: 4.3,
                 ratedBy: 650,
-                photo: 'https://placehold.co/600x400/EA580C/FFFFFF?text=Signature+Dish:+Butter+Chicken',
+                photos: [
+                    'https://placehold.co/600x400/EA580C/FFFFFF?text=Butter+Chicken',
+                    'https://placehold.co/600x400/EA580C/FFFFFF?text=Garlic+Naan',
+                    'https://placehold.co/600x400/EA580C/FFFFFF?text=Curry+Selection'
+                ],
+                address: '101 Market Lane, Dunedin',
                 prosCons: {
-                    pros: ['Rich, aromatic curries', 'Excellent value for money', 'Good vegan options'],
-                    cons: ['Spice levels can be inconsistent']
+                    pros: ['Flavourful curries', 'Good value', 'Vegan friendly'],
+                    cons: ['Spice levels can vary', 'Simple decor']
                 },
                 googleMapLink: 'https://maps.app.goo.gl/dummy4',
                 phone: '+64 7 876 5432'
@@ -364,10 +433,15 @@
                 price: '$$$',
                 rating: 4.8,
                 ratedBy: 1800,
-                photo: 'https://placehold.co/600x400/F97316/FFFFFF?text=Signature+Dish:+Truffle+Pasta',
+                photos: [
+                    'https://placehold.co/600x400/F97316/FFFFFF?text=Truffle+Pasta',
+                    'https://placehold.co/600x400/F97316/FFFFFF?text=Wood-fired+Pizza',
+                    'https://placehold.co/600x400/F97316/FFFFFF?text=Romantic+Setting'
+                ],
+                address: '202 Harbour View, Auckland',
                 prosCons: {
-                    pros: ['Authentic pasta dishes', 'Charming, romantic atmosphere', 'Extensive wine selection'],
-                    cons: ['Reservations are a must']
+                    pros: ['Authentic pasta', 'Romantic setting', 'Excellent wine list'],
+                    cons: ['Booking essential', 'Can be noisy']
                 },
                 googleMapLink: 'https://maps.app.goo.gl/dummy5',
                 phone: '+64 9 555 1234'
@@ -380,10 +454,15 @@
                 price: '$',
                 rating: 4.1,
                 ratedBy: 920,
-                photo: 'https://placehold.co/600x400/EA580C/FFFFFF?text=Signature+Dish:+Sweet+Sour+Pork',
+                photos: [
+                    'https://placehold.co/600x400/EA580C/FFFFFF?text=Sweet+%26+Sour+Pork',
+                    'https://placehold.co/600x400/EA580C/FFFFFF?text=Dumplings',
+                    'https://placehold.co/600x400/EA580C/FFFFFF?text=Noodle+Soup'
+                ],
+                address: '303 Commerce Street, Hamilton',
                 prosCons: {
-                    pros: ['Hearty portions', 'Quick service for takeaway', 'Classic Chinese dishes'],
-                    cons: ['Can get quite loud']
+                    pros: ['Generous portions', 'Fast takeaway', 'Classic dishes'],
+                    cons: ['Can be noisy', 'Basic decor']
                 },
                 googleMapLink: 'https://maps.app.goo.gl/dummy6',
                 phone: '+64 9 222 3333'
@@ -396,10 +475,15 @@
                 price: '$$',
                 rating: 4.6,
                 ratedBy: 1500,
-                photo: 'https://placehold.co/600x400/F97316/FFFFFF?text=Signature+Dish:+Pad+Thai',
+                photos: [
+                    'https://placehold.co/600x400/F97316/FFFFFF?text=Pad+Thai',
+                    'https://placehold.co/600x400/F97316/FFFFFF?text=Green+Curry',
+                    'https://placehold.co/600x400/F97316/FFFFFF?text=Thai+Spring+Rolls'
+                ],
+                address: '404 Queen Street, Auckland',
                 prosCons: {
-                    pros: ['Aromatic curries', 'Customisable spice levels', 'Ideal for group dining'],
-                    cons: ['Parking can be challenging']
+                    pros: ['Fragrant curries', 'Spicy options', 'Great for groups'],
+                    cons: ['Parking can be tricky', 'Gets very busy']
                 },
                 googleMapLink: 'https://maps.app.goo.gl/dummy7',
                 phone: '+64 9 777 8888'
@@ -412,10 +496,15 @@
                 price: '$',
                 rating: 4.4,
                 ratedBy: 3000,
-                photo: 'https://placehold.co/600x400/EA580C/FFFFFF?text=Signature+Dish:+Classic+Cheeseburger',
+                photos: [
+                    'https://placehold.co/600x400/EA580C/FFFFFF?text=Classic+Cheeseburger',
+                    'https://placehold.co/600x400/EA580C/FFFFFF?text=Loaded+Fries',
+                    'https://placehold.co/600x400/EA580C/FFFFFF?text=Milkshake'
+                ],
+                address: '505 Victoria Street, Wellington',
                 prosCons: {
-                    pros: ['Juicy, flavourful burgers', 'Perfectly crispy fries', 'Relaxed, casual vibe'],
-                    cons: ['Always a queue']
+                    pros: ['Juicy burgers', 'Crispy fries', 'Casual vibe'],
+                    cons: ['Always busy', 'Limited seating']
                 },
                 googleMapLink: 'https://maps.app.goo.gl/dummy8',
                 phone: '+64 9 111 2222'
@@ -428,10 +517,15 @@
                 price: '$$',
                 rating: 4.2,
                 ratedBy: 780,
-                photo: 'https://placehold.co/600x400/F97316/FFFFFF?text=Signature+Dish:+Laksa',
+                photos: [
+                    'https://placehold.co/600x400/F97316/FFFFFF?text=Laksa',
+                    'https://placehold.co/600x400/F97316/FFFFFF?text=Roti+Canai',
+                    'https://placehold.co/600x400/F97316/FFFFFF?text=Nasi+Lemak'
+                ],
+                address: '606 Cuba Street, Wellington',
                 prosCons: {
-                    pros: ['Authentic, rich laksa', 'Must-try roti canai', 'Great for sharing plates'],
-                    cons: ['Limited seating available']
+                    pros: ['Authentic laksa', 'Roti canai a must-try', 'Good for sharing'],
+                    cons: ['Limited seating', 'Can be a bit loud']
                 },
                 googleMapLink: 'https://maps.app.goo.gl/dummy9',
                 phone: '+64 9 444 5555'
@@ -444,10 +538,15 @@
                 price: '$',
                 rating: 4.5,
                 ratedBy: 1100,
-                photo: 'https://placehold.co/600x400/EA580C/FFFFFF?text=Signature+Dish:+Beef+Noodle+Soup',
+                photos: [
+                    'https://placehold.co/600x400/EA580C/FFFFFF?text=Beef+Noodle+Soup',
+                    'https://placehold.co/600x400/EA580C/FFFFFF?text=Pork+Belly+Buns',
+                    'https://placehold.co/600x400/EA580C/FFFFFF?text=Dumplings'
+                ],
+                address: '707 K Road, Auckland',
                 prosCons: {
-                    pros: ['Hearty, comforting noodle soups', 'Delicious, handmade dumplings', 'Quick and convenient'],
-                    cons: ['Occasionally cash only']
+                    pros: ['Hearty noodle soups', 'Delicious dumplings', 'Quick and easy'],
+                    cons: ['Occasionally cash only', 'Simple interior']
                 },
                 googleMapLink: 'https://maps.app.goo.gl/dummy10',
                 phone: '+64 9 666 7777'
@@ -457,15 +556,20 @@
         const restaurantCardsContainer = document.getElementById('restaurant-cards-container');
         const searchSection = document.getElementById('search-section');
         const styleSearchInput = document.getElementById('style-search');
-        const locationSearchInput = document.getElementById('location-search');
+        const locationSelect = document.getElementById('location-select');
+        const locationTextInput = document.getElementById('location-text-input');
+        const useGpsButton = document.getElementById('use-gps-button');
+        const gpsStatus = document.getElementById('gps-status');
         const distanceFilter = document.getElementById('distance-filter');
         const priceRangeFilter = document.getElementById('price-range-filter');
         const ratingFilter = document.getElementById('rating-filter');
         const ratedByFilter = document.getElementById('rated-by-filter');
-        const priceFilter = document.getElementById('price-filter');
         const searchButton = document.getElementById('search-button');
         const noResultsMessage = document.getElementById('no-results-message');
         const loadingIndicator = document.getElementById('loading-indicator');
+
+        let userLatitude = null;
+        let userLongitude = null;
 
         /**
          * Renders restaurant cards to the DOM.
@@ -482,12 +586,24 @@
             restaurants.forEach(restaurant => {
                 const cardHtml = `
                     <div class="restaurant-card">
-                        <img src="${restaurant.photo}" alt="Photo of ${restaurant.name}'s signature dish" class="rounded-t-xl">
+                        <div class="image-carousel" data-restaurant-id="${restaurant.id}">
+                            ${restaurant.photos.map((photo, index) => `
+                                <img src="${photo}" alt="Dish photo for ${restaurant.name}"
+                                     class="carousel-image absolute top-0 left-0 ${index === 0 ? '' : 'opacity-0'}"
+                                     data-index="${index}">
+                            `).join('')}
+                            ${restaurant.photos.length > 1 ? `
+                                <button class="carousel-button prev" onclick="navigateImage('${restaurant.id}', -1)">&#10094;</button>
+                                <button class="carousel-button next" onclick="navigateImage('${restaurant.id}', 1)">&#10095;</button>
+                            ` : ''}
+                        </div>
                         <div class="restaurant-info">
                             <h3 class="restaurant-name">${restaurant.name}</h3>
                             <p class="restaurant-details">
-                                ${restaurant.type} &bull; ${restaurant.distance} &bull; ${restaurant.price}
+                                <span class="font-semibold text-orange-700">${restaurant.type}</span> &bull;
+                                ${restaurant.distance} &bull; ${restaurant.price}
                             </p>
+                            <p class="text-sm text-gray-600 mb-2">${restaurant.address}</p>
                             <div class="restaurant-rating">
                                 <span class="star-icon">&#9733;</span>
                                 <span class="font-semibold text-orange-700">${restaurant.rating}</span>
@@ -512,6 +628,21 @@
             });
         }
 
+        // Global function for image carousel navigation
+        window.navigateImage = function(restaurantId, direction) {
+            const carousel = document.querySelector(`.image-carousel[data-restaurant-id="${restaurantId}"]`);
+            if (!carousel) return;
+
+            const images = Array.from(carousel.querySelectorAll('.carousel-image'));
+            let currentIndex = images.findIndex(img => !img.classList.contains('opacity-0'));
+
+            images[currentIndex].classList.add('opacity-0'); // Hide current
+
+            currentIndex = (currentIndex + direction + images.length) % images.length;
+
+            images[currentIndex].classList.remove('opacity-0'); // Show next/prev
+        };
+
         /**
          * Handles the search button click.
          * This function will now call the Netlify Function.
@@ -522,30 +653,37 @@
             noResultsMessage.classList.add('hidden'); // Hide no results message
 
             const styleQuery = styleSearchInput.value.toLowerCase().trim();
-            const locationQuery = locationSearchInput.value.toLowerCase().trim();
-            const distance = distanceFilter.value;
+            let locationQuery = locationSelect.value;
+            if (locationSelect.value === 'Other') {
+                locationQuery = locationTextInput.value.toLowerCase().trim();
+            }
+
+            const distance = distanceFilter.value; // Value is in meters for API
             const priceRange = priceRangeFilter.value;
             const minRating = ratingFilter.value;
-            const minRatedBy = ratedByFilter.value;
-            const avgPrice = priceFilter.value;
+            const ratedBy = ratedByFilter.value; // Note: Google Places API doesn't directly filter by min_rated_by
 
             // Construct query parameters for the Netlify Function
             const queryParams = new URLSearchParams({
                 query: styleQuery || 'restaurants', // Default query if style is empty
                 location: locationQuery,
-                radius: distance,
+                radius: distance, // Will be passed as radius in meters
                 min_rating: minRating,
-                min_rated_by: minRatedBy,
-                max_price: avgPrice, // Assuming avgPrice maps to max_price for simplicity
-                price_level: priceRange // Assuming priceRange maps to price_level
-            }).toString();
+                price_level: priceRange,
+                min_rated_by: ratedBy // Passed, but backend function needs to handle if possible
+            });
+
+            // Add GPS coordinates if available
+            if (userLatitude !== null && userLongitude !== null) {
+                queryParams.append('userLat', userLatitude);
+                queryParams.append('userLng', userLongitude);
+            }
 
             try {
-                // *** FIX: Using window.location.origin to create an absolute URL ***
-                const response = await fetch(`${window.location.origin}/.netlify/functions/searchRestaurants?${queryParams}`);
+                // Call your deployed Netlify Function
+                const response = await fetch(`${window.location.origin}/.netlify/functions/searchRestaurants?${queryParams.toString()}`);
 
                 if (!response.ok) {
-                    // Handle HTTP errors from the Netlify Function itself
                     const errorData = await response.json();
                     throw new Error(`Netlify Function error: ${response.status} - ${errorData.error || 'Unknown error'}`);
                 }
@@ -555,13 +693,59 @@
 
             } catch (error) {
                 console.error('Error fetching restaurants:', error);
-                // Display an error message to the user
                 noResultsMessage.textContent = `Failed to load restaurants: ${error.message}. Please try again later.`;
                 noResultsMessage.classList.remove('hidden');
             } finally {
                 loadingIndicator.classList.add('hidden'); // Hide loading indicator
             }
         });
+
+        /**
+         * Handles location select change to show/hide text input.
+         */
+        locationSelect.addEventListener('change', () => {
+            if (locationSelect.value === 'Other') {
+                locationTextInput.classList.remove('hidden');
+            } else {
+                locationTextInput.classList.add('hidden');
+                locationTextInput.value = ''; // Clear text input if not "Other"
+            }
+            // Reset GPS status when location selection changes
+            gpsStatus.classList.add('hidden');
+            gpsStatus.textContent = '';
+            userLatitude = null;
+            userLongitude = null;
+        });
+
+        /**
+         * Handles GPS detection.
+         */
+        useGpsButton.addEventListener('click', () => {
+            gpsStatus.classList.remove('hidden');
+            gpsStatus.textContent = 'Detecting location...';
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        userLatitude = position.coords.latitude;
+                        userLongitude = position.coords.longitude;
+                        gpsStatus.textContent = `Location detected: ${userLatitude.toFixed(3)}, ${userLongitude.toFixed(3)}`;
+                        locationSelect.value = 'New Zealand'; // Reset dropdown to default
+                        locationTextInput.classList.add('hidden'); // Hide text input
+                        locationTextInput.value = ''; // Clear text input
+                    },
+                    (error) => {
+                        console.error('Geolocation error:', error);
+                        gpsStatus.textContent = `Error: ${error.message}. Please enable location services.`;
+                        userLatitude = null;
+                        userLongitude = null;
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            } else {
+                gpsStatus.textContent = 'Geolocation is not supported by this browser.';
+            }
+        });
+
 
         /**
          * Minimises the search area on scroll down for better mobile experience.
@@ -582,8 +766,6 @@
 
         // Initial render of all dummy restaurants when the page loads
         document.addEventListener('DOMContentLoaded', () => {
-            // For initial load, we can still show dummy data or leave it empty
-            // For now, let's keep showing dummy data.
             renderRestaurantCards(dummyRestaurants);
         });
     </script>
