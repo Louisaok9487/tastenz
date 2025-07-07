@@ -541,19 +541,13 @@
                 price_level: priceRange // Assuming priceRange maps to price_level
             }).toString();
 
-            try {
-                // Simulate fetching from your Netlify Function
-                // In a real deployed app, this would be: `/.netlify/functions/searchRestaurants?${queryParams}`
-                // For this prototype, we'll still use dummy data after a delay to simulate network call.
-                const response = await new Promise(resolve => setTimeout(() => {
-                    // Simulate filtering dummy data based on style for the prototype
-                    let filtered = dummyRestaurants;
-                    if (styleQuery) {
-                        filtered = dummyRestaurants.filter(r => r.type.toLowerCase().includes(styleQuery));
-                    }
-                    // In a real scenario, the Netlify function would return actual API results
-                    resolve({ json: () => Promise.resolve(filtered) });
-                }, 1500)); // Simulate 1.5 second network delay
+try {
+                // Call your deployed Netlify Function
+                const response = await fetch(`/.netlify/functions/searchRestaurants?${queryParams}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
 
                 const results = await response.json();
                 renderRestaurantCards(results);
@@ -566,7 +560,6 @@
             } finally {
                 loadingIndicator.classList.add('hidden'); // Hide loading indicator
             }
-        });
 
         /**
          * Minimises the search area on scroll down for better mobile experience.
