@@ -1,0 +1,2 @@
+[functions]
+  directory = "functions" # This tells Netlify where your functions are located
