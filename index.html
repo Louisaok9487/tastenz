@@ -514,8 +514,7 @@
 
         /**
          * Handles the search button click.
-         * This function will now simulate calling a Netlify Function.
-         * In a real app, the Netlify Function would then call the Google Places API.
+         * This function will now call the Netlify Function.
          */
         searchButton.addEventListener('click', async () => {
             loadingIndicator.classList.remove('hidden'); // Show loading indicator
@@ -541,12 +540,15 @@
                 price_level: priceRange // Assuming priceRange maps to price_level
             }).toString();
 
-try {
+            try {
+                // *** THIS IS THE CRUCIAL CHANGE ***
                 // Call your deployed Netlify Function
                 const response = await fetch(`/.netlify/functions/searchRestaurants?${queryParams}`);
 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    // Handle HTTP errors from the Netlify Function itself
+                    const errorData = await response.json();
+                    throw new Error(`Netlify Function error: ${response.status} - ${errorData.error || 'Unknown error'}`);
                 }
 
                 const results = await response.json();
@@ -555,11 +557,12 @@ try {
             } catch (error) {
                 console.error('Error fetching restaurants:', error);
                 // Display an error message to the user
-                noResultsMessage.textContent = 'Failed to load restaurants. Please try again later.';
+                noResultsMessage.textContent = `Failed to load restaurants: ${error.message}. Please try again later.`;
                 noResultsMessage.classList.remove('hidden');
             } finally {
                 loadingIndicator.classList.add('hidden'); // Hide loading indicator
             }
+        });
 
         /**
          * Minimises the search area on scroll down for better mobile experience.
