@@ -356,7 +356,7 @@
                 ],
                 address: '123 High Street, Auckland CBD',
                 prosCons: {
-                    pros: ['Exceptional service', 'Elegant ambiance', 'Delicious desserts'],
+                    pros: ['Exceptional service', 'Elegant ambiance', 'Decadent desserts'],
                     cons: ['Quite expensive', 'Reservations essential']
                 },
                 googleMapLink: 'https://maps.app.goo.gl/dummy1',
@@ -577,22 +577,30 @@
          */
         function renderRestaurantCards(restaurants) {
             restaurantCardsContainer.innerHTML = ''; // Clear previous results
-            if (restaurants.length === 0) {
+            if (!Array.isArray(restaurants) || restaurants.length === 0) { // Check if results is an array
                 noResultsMessage.classList.remove('hidden');
                 return;
             }
             noResultsMessage.classList.add('hidden');
 
             restaurants.forEach(restaurant => {
+                // Ensure photos is an array, even if backend sends a single 'photo' property or nothing
+                const photos = Array.isArray(restaurant.photos) ? restaurant.photos : (restaurant.photo ? [restaurant.photo] : []);
+                const displayPhotos = photos.length > 0 ? photos : ['https://placehold.co/600x400/CCCCCC/000000?text=No+Image']; // Fallback if no photos
+
+                // Ensure prosCons and its properties are arrays
+                const pros = (restaurant.prosCons && Array.isArray(restaurant.prosCons.pros)) ? restaurant.prosCons.pros : ['N/A'];
+                const cons = (restaurant.prosCons && Array.isArray(restaurant.prosCons.cons)) ? restaurant.prosCons.cons : ['N/A'];
+
                 const cardHtml = `
                     <div class="restaurant-card">
                         <div class="image-carousel" data-restaurant-id="${restaurant.id}">
-                            ${restaurant.photos.map((photo, index) => `
+                            ${displayPhotos.map((photo, index) => `
                                 <img src="${photo}" alt="Dish photo for ${restaurant.name}"
                                      class="carousel-image absolute top-0 left-0 ${index === 0 ? '' : 'opacity-0'}"
                                      data-index="${index}">
                             `).join('')}
-                            ${restaurant.photos.length > 1 ? `
+                            ${displayPhotos.length > 1 ? `
                                 <button class="carousel-button prev" onclick="navigateImage('${restaurant.id}', -1)">&#10094;</button>
                                 <button class="carousel-button next" onclick="navigateImage('${restaurant.id}', 1)">&#10095;</button>
                             ` : ''}
@@ -600,24 +608,24 @@
                         <div class="restaurant-info">
                             <h3 class="restaurant-name">${restaurant.name}</h3>
                             <p class="restaurant-details">
-                                <span class="font-semibold text-orange-700">${restaurant.type}</span> &bull;
-                                ${restaurant.distance} &bull; ${restaurant.price}
+                                <span class="font-semibold text-orange-700">${restaurant.type || 'Restaurant'}</span> &bull;
+                                ${restaurant.distance || 'N/A'} &bull; ${restaurant.price || 'N/A'}
                             </p>
-                            <p class="text-sm text-gray-600 mb-2">${restaurant.address}</p>
+                            <p class="text-sm text-gray-600 mb-2">${restaurant.address || 'Address not available'}</p>
                             <div class="restaurant-rating">
                                 <span class="star-icon">&#9733;</span>
-                                <span class="font-semibold text-orange-700">${restaurant.rating}</span>
-                                <span class="text-gray-500 ml-2">(${restaurant.ratedBy} ratings)</span>
+                                <span class="font-semibold text-orange-700">${restaurant.rating || 'N/A'}</span>
+                                <span class="text-gray-500 ml-2">(${restaurant.ratedBy || 0} ratings)</span>
                             </div>
                             <div class="pros-cons">
-                                <p><strong>Pros:</strong> ${restaurant.prosCons.pros.join(', ')}</p>
-                                <p><strong>Cons:</strong> ${restaurant.prosCons.cons.join(', ')}</p>
+                                <p><strong>Pros:</strong> ${pros.join(', ')}</p>
+                                <p><strong>Cons:</strong> ${cons.join(', ')}</p>
                             </div>
                             <div class="action-buttons">
-                                <a href="${restaurant.googleMapLink}" target="_blank" class="map-link">
+                                <a href="${restaurant.googleMapLink || '#'}" target="_blank" class="map-link">
                                     View on Map
                                 </a>
-                                <a href="tel:${restaurant.phone}" class="phone-link">
+                                <a href="tel:${restaurant.phone || '#'}" class="phone-link">
                                     Call
                                 </a>
                             </div>
@@ -634,7 +642,10 @@
             if (!carousel) return;
 
             const images = Array.from(carousel.querySelectorAll('.carousel-image'));
+            if (images.length === 0) return; // No images to navigate
+
             let currentIndex = images.findIndex(img => !img.classList.contains('opacity-0'));
+            if (currentIndex === -1) currentIndex = 0; // Default to first if none visible
 
             images[currentIndex].classList.add('opacity-0'); // Hide current
 
